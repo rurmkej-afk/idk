@@ -1,5 +1,5 @@
 // Вставь свой настоящий API-ключ между кавычками:
-const API_KEY = "AQ.Ab8RN6JIfM0ZrBtzdjQtkndukzkAzBSvRPCMf0JsouzpbFDC2Q"; 
+const API_KEY = "AIzaSyAg6LJQsV2S6m1Bg_fzBloxtodueke_Syw"; 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
 async function askCharacter() {
