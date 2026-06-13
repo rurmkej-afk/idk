@@ -1,6 +1,7 @@
-// Вставь сюда свой ключ, который начинается на AQ...
-const API_KEY = "AQ.Ab8RN6LqWwFakfYLTOBJ3JBh4sELYh6XKCi9zSoxssptzXE2hA"; 
-const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+// Вставь сюда свой ключ (тот, который начинается на AIzaSy)
+const API_KEY = "AIzaSyAg6LJQsV2S6m1Bg_fzBloxtodueke_Syw"; 
+// Вот этот адрес со словом /v1beta/models/ — единственный правильный для этого типа ключа
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
 async function askCharacter() {
     let inputField = document.getElementById("user-input");
@@ -18,22 +19,21 @@ async function askCharacter() {
     inputField.value = ""; 
 
     try {
-        // Новый формат запроса, который требует v1 с AQ-ключами
         let response = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                contents: [{ role: "user", parts: [{ text: userText }] }]
+                contents: [{ parts: [{ text: userText }] }]
             })
         });
 
         let data = await response.json();
         
-        // Достаем ответ
+        // Достаем ответ от ИИ
         let aiResponse = data.candidates[0].content.parts[0].text;
         responseText.innerText = aiResponse;
 
-        // Эмоции персонажа
+        // Эмоции
         let lowerText = aiResponse.toLowerCase();
         if (aiResponse.includes("!") || lowerText.includes("нет") || lowerText.includes("ужас") || lowerText.includes("блин")) {
             spriteImage.src = "angry.png";
