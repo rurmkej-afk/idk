@@ -1,8 +1,11 @@
-const API_KEY = "AIzaSyAg6LJQsV2S6m1Bg_fzBloxtodueke_Syw"; 
-// Переключаемся на стабильную v1
-const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+import { GoogleGenAI } from "@google/generative-ai";
 
-async function askCharacter() {
+// Твой рабочий ключ
+const API_KEY = "AIzaSyAg6LJQsV2S6m1Bg_fzBloxtodueke_Syw";
+const ai = new GoogleGenAI({ apiKey: API_KEY });
+
+// Делаем функцию доступной для кнопки HTML, так как у нас теперь type="module"
+window.askCharacter = async function() {
     let inputField = document.getElementById("user-input");
     let userText = inputField.value.trim();
 
@@ -18,31 +21,15 @@ async function askCharacter() {
     inputField.value = ""; 
 
     try {
-        // Запрос подстроен под жесткие стандарты v1
-        let response = await fetch(API_URL, {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: userText }]
-                }]
-            })
-        });
+        // Официальный и самый стабильный вызов модели
+        const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const result = await model.generateContent(userText);
+        const aiResponse = result.response.text();
 
-        if (!response.ok) {
-            // Если гугл вернет ошибку, мы увидим её текст в консоли, а не просто 404
-            let errorData = await response.json();
-            console.error("Ошибка от Google:", errorData);
-            throw new Error("Сервер вернул ошибку");
-        }
-
-        let data = await response.json();
-        
-        let aiResponse = data.candidates[0].content.parts[0].text;
+        // Выводим ответ на экран
         responseText.innerText = aiResponse;
 
+        // Эмоции персонажа
         let lowerText = aiResponse.toLowerCase();
         if (aiResponse.includes("!") || lowerText.includes("нет") || lowerText.includes("ужас") || lowerText.includes("блин")) {
             spriteImage.src = "angry.png";
@@ -51,7 +38,7 @@ async function askCharacter() {
         }
 
     } catch (error) {
-        console.error("Критическая ошибка:", error);
+        console.error("Ошибка ИИ:", error);
         responseText.innerText = "Ой, что-то связь с моим мозгом оборвалась... Попробуй еще раз!";
         spriteImage.src = "angry.png";
     }
