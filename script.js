@@ -1,12 +1,3 @@
-// Импортируем официальный браузерный модуль Gemini от Google
-import { GoogleGenAI } from "https://esm.run/@google/generative-ai";
-
-// Твой рабочий ключ нового поколения
-const API_KEY = "AQ.Ab8RN6Kkrn08agSFd_3eZy5a8432Vz_IHn_tDm5MNpWPxZDpWQ";
-
-// Инициализируем ИИ через официальный класс
-const ai = new GoogleGenAI({ apiKey: API_KEY });
-
 window.askCharacter = async function() {
     let inputField = document.getElementById("user-input");
     let userText = inputField.value.trim();
@@ -23,12 +14,16 @@ window.askCharacter = async function() {
     inputField.value = ""; 
 
     try {
-        // Подключаем актуальную модель gemini-2.5-flash через официальный метод
-        const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent(userText);
+        // Используем бесплатный, стабильный текстовый ИИ-интерфейс без ключей
+        let response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(userText)}`);
+
+        if (!response.ok) {
+            throw new Error("Ошибка сети");
+        }
+
+        let aiResponse = await response.text();
         
-        // Получаем чистый текст ответа
-        const aiResponse = result.response.text();
+        // Выводим ответ на экран
         responseText.innerText = aiResponse;
 
         // Эмоции персонажа
@@ -40,7 +35,7 @@ window.askCharacter = async function() {
         }
 
     } catch (error) {
-        console.error("Ошибка Gemini SDK:", error);
+        console.error("Критическая ошибка:", error);
         responseText.innerText = "Ой, что-то связь с моим мозгом оборвалась... Попробуй еще раз!";
         spriteImage.src = "angry.png";
     }
