@@ -1,6 +1,6 @@
 const API_KEY = "AIzaSyAg6LJQsV2S6m1Bg_fzBloxtodueke_Syw"; 
-// Переключаемся обратно на стабильную v1 и убираем -latest
-const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+// Меняем 1.5 на 2.5
+const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 // Привязываем функцию к окну браузера, чтобы кнопка в HTML её видела
 window.askCharacter = async function() {
     let inputField = document.getElementById("user-input");
