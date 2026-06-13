@@ -1,6 +1,6 @@
-// Вставь свой настоящий API-ключ между кавычками:
-const API_KEY = "AIzaSyAg6LJQsV2S6m1Bg_fzBloxtodueke_Syw"; 
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+// Вставь сюда свой ключ, который начинается на AQ...
+const API_KEY = "AQ.Ab8RN6LqWwFakfYLTOBJ3JBh4sELYh6XKCi9zSoxssptzXE2hA"; 
+const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
 async function askCharacter() {
     let inputField = document.getElementById("user-input");
@@ -14,31 +14,26 @@ async function askCharacter() {
     let spriteImage = document.getElementById("sprite");
     let responseText = document.getElementById("response-text");
 
-    // Шаг 1: Персонаж «задумался». Включаем happy (или thinking, если создашь такую картинку)
     responseText.innerText = "Ммм... Дай-ка подумать...";
-    // Очищаем поле ввода сразу, чтобы пользователь видел, что процесс пошел
     inputField.value = ""; 
 
     try {
-        // Шаг 2: Отправляем запрос к ИИ через интернет
+        // Новый формат запроса, который требует v1 с AQ-ключами
         let response = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: userText }] }]
+                contents: [{ role: "user", parts: [{ text: userText }] }]
             })
         });
 
         let data = await response.json();
         
-        // Достаем чистый текст ответа ИИ
+        // Достаем ответ
         let aiResponse = data.candidates[0].content.parts[0].text;
-
-        // Шаг 3: Выводим ответ на экран
         responseText.innerText = aiResponse;
 
-        // Шаг 4: Проверяем настроение ответа
-        // Если в тексте ИИ есть восклицательный знак, капс или грустные слова — он злится
+        // Эмоции персонажа
         let lowerText = aiResponse.toLowerCase();
         if (aiResponse.includes("!") || lowerText.includes("нет") || lowerText.includes("ужас") || lowerText.includes("блин")) {
             spriteImage.src = "angry.png";
@@ -47,7 +42,6 @@ async function askCharacter() {
         }
 
     } catch (error) {
-        // Если что-то пошло не так (например, кончился интернет или ключ не работает)
         console.error(error);
         responseText.innerText = "Ой, что-то связь с моим мозгом оборвалась... Попробуй еще раз!";
         spriteImage.src = "angry.png";
