@@ -13,27 +13,19 @@ window.askCharacter = async function() {
     responseText.innerText = "Ммм... Дай-ка подумать...";
     inputField.value = ""; 
 
+    // Используем CORS-прокси, который разрешает браузеру читать ответ
+    const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
+    const TARGET_URL = "https://text.pollinations.ai/" + encodeURIComponent(userText);
+
     try {
-        // Переключаемся на ультра-стабильный бесплатный ИИ от DuckDuckGo
-        let response = await fetch("https://nexra.aryahcr.cc/api/chat/gpt", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                messages: [{ role: "user", content: userText }],
-                stream: false
-            })
-        });
+        // Склеиваем прокси и цель вместе
+        let response = await fetch(CORS_PROXY + TARGET_URL);
 
         if (!response.ok) {
-            throw new Error("Ошибка сервера");
+            throw new Error("Ошибка сети");
         }
 
-        let data = await response.json();
-        
-        // Достаем чистый текст ответа
-        let aiResponse = data.gpt || data.gpt4 || data.text || "Привет!";
+        let aiResponse = await response.text();
         responseText.innerText = aiResponse;
 
         // Логика эмоций персонажа
@@ -46,7 +38,7 @@ window.askCharacter = async function() {
 
     } catch (error) {
         console.error("Критическая ошибка:", error);
-        responseText.innerText = "Ой, что-то связь с моим мозгом оборвалась... Попробуй еще раз!";
+        responseText.innerText = "Упс! Нужно активировать прокси-доступ. Нажми кнопку ниже.";
         spriteImage.src = "angry.png";
     }
 }
