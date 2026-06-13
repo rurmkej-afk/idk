@@ -1,7 +1,6 @@
 const API_KEY = "AIzaSyAg6LJQsV2S6m1Bg_fzBloxtodueke_Syw"; 
 // Точный и правильный URL для твоего ключа
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
 // Привязываем функцию к окну браузера, чтобы кнопка в HTML её видела
 window.askCharacter = async function() {
     let inputField = document.getElementById("user-input");
