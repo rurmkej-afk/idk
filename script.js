@@ -1,7 +1,11 @@
-// Твой ключ, который начинается на AQ
-const API_KEY = "AQ.Ab8RN6Kkrn08agSFd_3eZy5a8432Vz_IHn_tDm5MNpWPxZDpWQ"; 
-// Ссылка БЕЗ знака вопроса и без слова key на конце
-const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
+// Импортируем официальный браузерный модуль Gemini от Google
+import { GoogleGenAI } from "https://esm.run/@google/generative-ai";
+
+// Твой рабочий ключ нового поколения
+const API_KEY = "AQ.Ab8RN6Kkrn08agSFd_3eZy5a8432Vz_IHn_tDm5MNpWPxZDpWQ";
+
+// Инициализируем ИИ через официальный класс
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 window.askCharacter = async function() {
     let inputField = document.getElementById("user-input");
@@ -19,31 +23,15 @@ window.askCharacter = async function() {
     inputField.value = ""; 
 
     try {
-        let response = await fetch(API_URL, {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json",
-                // ВОТ ОН! Секретный заголовок для ключей типа AQ
-                "x-goog-api-key": API_KEY
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: userText }]
-                }]
-            })
-        });
-
-        let data = await response.json();
-
-        if (data.error) {
-            console.error("Ошибка от Google:", data.error.message);
-            responseText.innerText = "Google ругается: " + data.error.message;
-            return;
-        }
+        // Подключаем актуальную модель gemini-2.5-flash через официальный метод
+        const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent(userText);
         
-        let aiResponse = data.candidates[0].content.parts[0].text;
+        // Получаем чистый текст ответа
+        const aiResponse = result.response.text();
         responseText.innerText = aiResponse;
 
+        // Эмоции персонажа
         let lowerText = aiResponse.toLowerCase();
         if (aiResponse.includes("!") || lowerText.includes("нет") || lowerText.includes("ужас") || lowerText.includes("блин")) {
             spriteImage.src = "angry.png";
@@ -52,7 +40,7 @@ window.askCharacter = async function() {
         }
 
     } catch (error) {
-        console.error("Критическая ошибка:", error);
+        console.error("Ошибка Gemini SDK:", error);
         responseText.innerText = "Ой, что-то связь с моим мозгом оборвалась... Попробуй еще раз!";
         spriteImage.src = "angry.png";
     }
