@@ -1,6 +1,6 @@
-// Твой новый ключ, который начинается на AQ
+// Твой ключ, который начинается на AQ
 const API_KEY = "AQ.Ab8RN6Kkrn08agSFd_3eZy5a8432Vz_IHn_tDm5MNpWPxZDpWQ"; 
-// Из ссылки полностью убираем "?key=" !
+// Ссылка БЕЗ знака вопроса и без слова key на конце
 const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
 
 window.askCharacter = async function() {
@@ -23,8 +23,8 @@ window.askCharacter = async function() {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                // Передаем ключ AQ правильно — как Bearer токен!
-                "Authorization": `Bearer ${API_KEY}`
+                // ВОТ ОН! Секретный заголовок для ключей типа AQ
+                "x-goog-api-key": API_KEY
             },
             body: JSON.stringify({
                 contents: [{
