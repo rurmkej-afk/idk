@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Мой ИИ Персонаж</title>
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="https://unpkg.com/@google/genai-components"></script>
 </head>
 <body>
 
@@ -12,14 +13,13 @@
     <img id="sprite" src="happy.png">
 
     <div id="response-container">
-        <p id="response-text">Задай мне вопрос...</p>
+        <gm-ai-text-sandwich 
+            api-key="AQ.Ab8RN6Kkrn08agSFd_3eZy5a8432Vz_IHn_tDm5MNpWPxZDpWQ"
+            model="gemini-2.5-flash"
+            placeholder="Напиши своему персонажу...">
+        </gm-ai-text-sandwich>
     </div>
 
-    <div class="chat-controls">
-        <input type="text" id="user-input" placeholder="Напиши что-нибудь...">
-        <button id="emotion-btn" onclick="askCharacter()">Спросить</button>
-    </div>
-
-    <script type="module" src="script.js?v=13"></script>
+    <script type="module" src="script.js?v=14"></script>
 </body>
 </html>
