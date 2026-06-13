@@ -1,19 +1,52 @@
-// Ждем, пока компонент Google отрендерится на странице
-customElements.whenDefined('gm-ai-text-sandwich').then(() => {
-    const aiComponent = document.querySelector('gm-ai-text-sandwich');
-    const spriteImage = document.getElementById('sprite');
+window.askCharacter = async function() {
+    let inputField = document.getElementById("user-input");
+    let userText = inputField.value.trim();
 
-    // Слушаем, когда ИИ сгенерирует ответ
-    aiComponent.addEventListener('approve', (event) => {
-        // Достаем текст ответа из компонента
-        let aiResponse = event.detail.text; 
+    if (userText === "") {
+        alert("Сначала напиши вопрос!");
+        return;
+    }
+
+    let spriteImage = document.getElementById("sprite");
+    let responseText = document.getElementById("response-text");
+
+    responseText.innerText = "Ммм... Дай-ка подумать...";
+    inputField.value = ""; 
+
+    try {
+        // Запрос к открытому API без ограничений по CORS и без ключей
+        let response = await fetch("https://api.airforce/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                messages: [{ role: "user", content: userText }],
+                model: "llama-3.3-70b" // Используем мощную открытую модель
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error("Ошибка сервера");
+        }
+
+        let data = await response.json();
         
-        // Логика смены эмоций картинки
+        // Достаем текст ответа из стандартного JSON-формата
+        let aiResponse = data.choices[0].message.content;
+        responseText.innerText = aiResponse;
+
+        // Логика эмоций персонажа
         let lowerText = aiResponse.toLowerCase();
         if (aiResponse.includes("!") || lowerText.includes("нет") || lowerText.includes("ужас") || lowerText.includes("блин")) {
             spriteImage.src = "angry.png";
         } else {
             spriteImage.src = "happy.png";
         }
-    });
-});
+
+    } catch (error) {
+        console.error("Критическая ошибка:", error);
+        responseText.innerText = "Ой, что-то связь с моим мозгом оборвалась... Попробуй еще раз!";
+        spriteImage.src = "angry.png";
+    }
+}
