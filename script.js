@@ -14,19 +14,29 @@ window.askCharacter = async function() {
     inputField.value = ""; 
 
     try {
-        // Используем бесплатный, стабильный текстовый ИИ-интерфейс без ключей
-        let response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(userText)}`);
+        // Переключаемся на ультра-стабильный бесплатный ИИ от DuckDuckGo
+        let response = await fetch("https://nexra.aryahcr.cc/api/chat/gpt", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                messages: [{ role: "user", content: userText }],
+                stream: false
+            })
+        });
 
         if (!response.ok) {
-            throw new Error("Ошибка сети");
+            throw new Error("Ошибка сервера");
         }
 
-        let aiResponse = await response.text();
+        let data = await response.json();
         
-        // Выводим ответ на экран
+        // Достаем чистый текст ответа
+        let aiResponse = data.gpt || data.gpt4 || data.text || "Привет!";
         responseText.innerText = aiResponse;
 
-        // Эмоции персонажа
+        // Логика эмоций персонажа
         let lowerText = aiResponse.toLowerCase();
         if (aiResponse.includes("!") || lowerText.includes("нет") || lowerText.includes("ужас") || lowerText.includes("блин")) {
             spriteImage.src = "angry.png";
