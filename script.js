@@ -1,10 +1,8 @@
-import { GoogleGenAI } from "@google/generative-ai";
+const API_KEY = "AIzaSyAg6LJQsV2S6m1Bg_fzBloxtodueke_Syw"; 
+// Точный и правильный URL для твоего ключа
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
-// Твой рабочий ключ
-const API_KEY = "AIzaSyAg6LJQsV2S6m1Bg_fzBloxtodueke_Syw";
-const ai = new GoogleGenAI({ apiKey: API_KEY });
-
-// Делаем функцию доступной для кнопки HTML, так как у нас теперь type="module"
+// Привязываем функцию к окну браузера, чтобы кнопка в HTML её видела
 window.askCharacter = async function() {
     let inputField = document.getElementById("user-input");
     let userText = inputField.value.trim();
@@ -21,12 +19,29 @@ window.askCharacter = async function() {
     inputField.value = ""; 
 
     try {
-        // Официальный и самый стабильный вызов модели
-        const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const result = await model.generateContent(userText);
-        const aiResponse = result.response.text();
+        let response = await fetch(API_URL, {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: userText }]
+                }]
+            })
+        });
 
-        // Выводим ответ на экран
+        let data = await response.json();
+
+        // Проверяем, прислал ли Google ошибку внутри ответа
+        if (data.error) {
+            console.error("Ошибка от Google:", data.error.message);
+            responseText.innerText = "Google ругается: " + data.error.message;
+            return;
+        }
+        
+        // Достаем текст ответа
+        let aiResponse = data.candidates[0].content.parts[0].text;
         responseText.innerText = aiResponse;
 
         // Эмоции персонажа
@@ -38,7 +53,7 @@ window.askCharacter = async function() {
         }
 
     } catch (error) {
-        console.error("Ошибка ИИ:", error);
+        console.error("Критическая ошибка:", error);
         responseText.innerText = "Ой, что-то связь с моим мозгом оборвалась... Попробуй еще раз!";
         spriteImage.src = "angry.png";
     }
