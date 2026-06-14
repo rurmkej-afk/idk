@@ -15,7 +15,7 @@ window.askCharacter = async function() {
 
     try {
         // Используем супер-стабильный глобальный сервер Cloudflare ИИ
-        let response = await fetch("https:// those-cloudflare-ai.glitch.me/v1/chat/completions", {
+        let response = await fetch("https://those-cloudflare-ai.glitch.me/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
