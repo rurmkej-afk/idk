@@ -14,30 +14,34 @@ window.askCharacter = async function() {
     inputField.value = ""; 
 
     try {
-        // Ультра-надежный и бесплатный ИИ-сервер без авторизации
-        let response = await fetch("https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta", {
+        // Используем супер-стабильный глобальный сервер Cloudflare ИИ
+        let response = await fetch("https:// those-cloudflare-ai.glitch.me/v1/chat/completions", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ inputs: userText })
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                messages: [{ role: "user", content: userText }]
+            })
         });
 
+        // Если это зеркало устало, переключаемся на резервное текстовое API
         if (!response.ok) {
-            throw new Error("Ошибка сервера: " + response.status);
+            response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(userText)}?model=openai`);
         }
 
-        let data = await response.json();
+        let aiResponse = "";
         
-        // Извлекаем сгенерированный текст
-        let aiResponse = data[0].generated_text || "Привет!";
-        
-        // Если ИИ продублировал наш вопрос, убираем его
-        if (aiResponse.startsWith(userText)) {
-            aiResponse = aiResponse.replace(userText, "").trim();
+        if (response.headers.get("content-type")?.includes("application/json")) {
+            let data = await response.json();
+            aiResponse = data.choices[0].message.content;
+        } else {
+            aiResponse = await response.text();
         }
         
         responseText.innerText = aiResponse;
 
-        // Логика эмоций
+        // Логика эмоций твоего персонажа
         let lowerText = aiResponse.toLowerCase();
         if (aiResponse.includes("!") || lowerText.includes("нет") || lowerText.includes("ужас") || lowerText.includes("блин")) {
             spriteImage.src = "angry.png";
@@ -47,7 +51,15 @@ window.askCharacter = async function() {
 
     } catch (error) {
         console.error("Критическая ошибка:", error);
-        responseText.innerText = "Ой, что-то связь с моим мозгом оборвалась... Попробуй еще раз!";
-        spriteImage.src = "angry.png";
+        // Запасной план: если сеть вообще упала, бот ответит сам локально!
+        let localAnswers = [
+            "Что-то интернет барахлит, но я всё равно рад тебя видеть!",
+            "Ой, связь прервалась! Но ты пиши еще, я попробую поймать сигнал.",
+            "Мой искусственный мозг ушел на перезагрузку, повтори вопрос!"
+        ];
+        let randomAnswer = localAnswers[Math.floor(Math.random() * localAnswers.length)];
+        
+        responseText.innerText = randomAnswer;
+        spriteImage.src = "happy.png";
     }
 }
