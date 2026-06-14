@@ -1,4 +1,4 @@
-window.askCharacter = async function() {
+\window.askCharacter = async function() {
     let inputField = document.getElementById("user-input");
     let userText = inputField.value.trim();
 
@@ -14,14 +14,13 @@ window.askCharacter = async function() {
     inputField.value = ""; 
 
     try {
-        // Ультра-стабильный публичный сервер, который пускает без ключей
         let response = await fetch("https://api.deepinfra.com/v1/openai/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "meta-llama/Llama-3-70b-instruct", // Мощная и открытая модель
+                model: "meta-llama/Meta-Llama-3-8B-Instruct", // Точное имя рабочей модели
                 messages: [{ role: "user", content: userText }]
             })
         });
@@ -32,11 +31,9 @@ window.askCharacter = async function() {
 
         let data = await response.json();
         
-        // Достаем текст ответа
         let aiResponse = data.choices[0].message.content;
         responseText.innerText = aiResponse;
 
-        // Логика эмоций персонажа
         let lowerText = aiResponse.toLowerCase();
         if (aiResponse.includes("!") || lowerText.includes("нет") || lowerText.includes("ужас") || lowerText.includes("блин")) {
             spriteImage.src = "angry.png";
