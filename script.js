@@ -14,34 +14,19 @@ window.askCharacter = async function() {
     inputField.value = ""; 
 
     try {
-        // Используем супер-стабильный глобальный сервер Cloudflare ИИ
-        let response = await fetch("https://those-cloudflare-ai.glitch.me/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                messages: [{ role: "user", content: userText }]
-            })
-        });
+        // Простой GET-запрос через обычную ссылку. 
+        // Добавляем кэш-брейкер &cb=, чтобы запросы не повторялись.
+        let response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(userText)}?json=false&cb=${Date.now()}`);
 
-        // Если это зеркало устало, переключаемся на резервное текстовое API
         if (!response.ok) {
-            response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(userText)}?model=openai`);
+            throw new Error("Ошибка сервера");
         }
 
-        let aiResponse = "";
-        
-        if (response.headers.get("content-type")?.includes("application/json")) {
-            let data = await response.json();
-            aiResponse = data.choices[0].message.content;
-        } else {
-            aiResponse = await response.text();
-        }
-        
+        // Получаем чистый текст ответа напрямую
+        let aiResponse = await response.text();
         responseText.innerText = aiResponse;
 
-        // Логика эмоций твоего персонажа
+        // Логика эмоций персонажа
         let lowerText = aiResponse.toLowerCase();
         if (aiResponse.includes("!") || lowerText.includes("нет") || lowerText.includes("ужас") || lowerText.includes("блин")) {
             spriteImage.src = "angry.png";
@@ -51,15 +36,7 @@ window.askCharacter = async function() {
 
     } catch (error) {
         console.error("Критическая ошибка:", error);
-        // Запасной план: если сеть вообще упала, бот ответит сам локально!
-        let localAnswers = [
-            "Что-то интернет барахлит, но я всё равно рад тебя видеть!",
-            "Ой, связь прервалась! Но ты пиши еще, я попробую поймать сигнал.",
-            "Мой искусственный мозг ушел на перезагрузку, повтори вопрос!"
-        ];
-        let randomAnswer = localAnswers[Math.floor(Math.random() * localAnswers.length)];
-        
-        responseText.innerText = randomAnswer;
-        spriteImage.src = "happy.png";
+        responseText.innerText = "Ой, что-то связь с моим мозгом оборвалась... Попробуй еще раз!";
+        spriteImage.src = "angry.png";
     }
 }
