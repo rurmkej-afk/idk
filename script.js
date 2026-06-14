@@ -13,37 +13,27 @@ window.askCharacter = async function() {
     responseText.innerText = "Ммм... Дай-ка подумать...";
     inputField.value = ""; 
 
-    // Твой личный ключ нового поколения
-    const API_KEY = "AQ.Ab8RN6Kkrn08agSFd_3eZy5a8432Vz_IHn_tDm5MNpWPxZDpWQ";
-    
-    // Используем универсальный эндпоинт v1beta
-    const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
-
     try {
-        let response = await fetch(API_URL, {
+        // Стабильный открытый шлюз к нейросети Qwen 2.5, полностью разрешенный для браузеров (CORS)
+        let response = await fetch("https://chat.ai-tunnel.ru/v1/chat/completions", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                // Передаем AQ-ключ как Bearer-токен, обходя блокировку браузерного API
-                "Authorization": `Bearer ${API_KEY}`
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: userText }]
-                }]
+                model: "Qwen/Qwen2.5-7B-Instruct",
+                messages: [{ role: "user", content: userText }]
             })
         });
 
-        let data = await response.json();
-
-        if (data.error) {
-            console.error("Ошибка от Google:", data.error.message);
-            responseText.innerText = "Google ругается: " + data.error.message;
-            return;
+        if (!response.ok) {
+            throw new Error("Ошибка сервера: " + response.status);
         }
+
+        let data = await response.json();
         
-        // Достаем текст ответа Gemini
-        let aiResponse = data.candidates[0].content.parts[0].text;
+        // Извлекаем чистый текст ответа
+        let aiResponse = data.choices[0].message.content;
         responseText.innerText = aiResponse;
 
         // Логика эмоций твоего персонажа
