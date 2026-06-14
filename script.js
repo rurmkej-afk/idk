@@ -1,4 +1,4 @@
-\window.askCharacter = async function() {
+window.askCharacter = async function() {
     let inputField = document.getElementById("user-input");
     let userText = inputField.value.trim();
 
@@ -14,15 +14,11 @@
     inputField.value = ""; 
 
     try {
-        let response = await fetch("https://api.deepinfra.com/v1/openai/chat/completions", {
+        // Ультра-надежный и бесплатный ИИ-сервер без авторизации
+        let response = await fetch("https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: "meta-llama/Meta-Llama-3-8B-Instruct", // Точное имя рабочей модели
-                messages: [{ role: "user", content: userText }]
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ inputs: userText })
         });
 
         if (!response.ok) {
@@ -31,9 +27,17 @@
 
         let data = await response.json();
         
-        let aiResponse = data.choices[0].message.content;
+        // Извлекаем сгенерированный текст
+        let aiResponse = data[0].generated_text || "Привет!";
+        
+        // Если ИИ продублировал наш вопрос, убираем его
+        if (aiResponse.startsWith(userText)) {
+            aiResponse = aiResponse.replace(userText, "").trim();
+        }
+        
         responseText.innerText = aiResponse;
 
+        // Логика эмоций
         let lowerText = aiResponse.toLowerCase();
         if (aiResponse.includes("!") || lowerText.includes("нет") || lowerText.includes("ужас") || lowerText.includes("блин")) {
             spriteImage.src = "angry.png";
