@@ -14,25 +14,25 @@ window.askCharacter = async function() {
     inputField.value = ""; 
 
     try {
-        // Запрос к открытому API без ограничений по CORS и без ключей
-        let response = await fetch("https://api.airforce/v1/chat/completions", {
+        // Ультра-стабильный публичный сервер, который пускает без ключей
+        let response = await fetch("https://api.deepinfra.com/v1/openai/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                messages: [{ role: "user", content: userText }],
-                model: "llama-3.3-70b" // Используем мощную открытую модель
+                model: "meta-llama/Llama-3-70b-instruct", // Мощная и открытая модель
+                messages: [{ role: "user", content: userText }]
             })
         });
 
         if (!response.ok) {
-            throw new Error("Ошибка сервера");
+            throw new Error("Ошибка сервера: " + response.status);
         }
 
         let data = await response.json();
         
-        // Достаем текст ответа из стандартного JSON-формата
+        // Достаем текст ответа
         let aiResponse = data.choices[0].message.content;
         responseText.innerText = aiResponse;
 
